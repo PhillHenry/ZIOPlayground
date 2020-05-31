@@ -16,12 +16,12 @@ object LargePipeMainSpec extends DefaultRunnableSpec {
   val original      = ("0123456789" * n) + "remainder"
   val originalBytes = original.map(_.toByte).toList
 
-  def toString(xs: List[Byte]): String = xs.mkString("")
+  def toString(xs: List[Byte]): String = new String(xs.toArray)
 
   override def spec: ZSpec[TestEnvironment, Any] = {
     suite("efficiency of large streams")(
       testM ("should maintain integrity"){
-        val actual = piping(ZStream.fromIterable(originalBytes), 1024, false)
+        val actual = piping(ZStream.fromIterable(originalBytes), 1024).take(original.length)
         for {
           sameSize    <- assertM(actual.runCollect.map(x => toString(x).length))(equalTo(original.length))
           sameContent <- assertM(actual.runCollect.map(toString))(equalTo(original))
