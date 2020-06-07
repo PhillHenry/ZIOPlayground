@@ -15,12 +15,20 @@ object LargePipeMain {
   } yield (in, out)
 
 
-  def piping(input: ZStream[Clock, IOException, Byte], chunkSize: Int = 5): ZStream[Clock with Blocking, Throwable, Byte] = {
-
+  def piping(input: ZStream[Clock, IOException, Byte], chunkSize: Int = 5): ZStream[Clock with Blocking, Throwable, Byte] =
     ZStream.fromEffect(pipes).flatMap { case (in, out) =>
       ZStream.fromInputStream(in).drainFork(input.chunkN(chunkSize).mapM { b => ZIO{out.write(b)} })
     }
 
-  }
+  def pipingChunks(input: ZStream[Clock, IOException, Byte], chunkSize: Int = 5): ZStream[Clock with Blocking, Throwable, Byte] =
+    ZStream.fromEffect(pipes).flatMap { case (in, out) =>
+      val writingStream: ZStream[Clock, Throwable, Byte] = input.chunkN(chunkSize).mapChunksM { chunk: Chunk[Byte] =>
+        ZIO {
+          out.write(chunk.toArray)
+          chunk
+        }
+      }
+      ZStream.fromInputStream(in).drainFork(writingStream).chunkN(chunkSize)
+    }
 
 }
