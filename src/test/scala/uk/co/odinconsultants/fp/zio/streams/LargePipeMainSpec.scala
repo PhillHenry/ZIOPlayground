@@ -33,7 +33,7 @@ object LargePipeMainSpec extends DefaultRunnableSpec {
       testM ("but chunks but mapping Chunks doesn't work"){
         val actual = pipingChunks(ZStream.fromIterable(originalBytes), LargeChunkSize).take(original.length)
         assertSameSizeAndContent(actual)
-      } @@ ignore
+      } @@ timeout(10 seconds)
     )
   }
 

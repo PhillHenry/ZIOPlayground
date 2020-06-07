@@ -24,11 +24,13 @@ object LargePipeMain {
     ZStream.fromEffect(pipes).flatMap { case (in, out) =>
       val writingStream: ZStream[Clock, Throwable, Byte] = input.chunkN(chunkSize).mapChunksM { chunk: Chunk[Byte] =>
         ZIO {
+          println(s"Writing ${chunk.length} bytes")
           out.write(chunk.toArray)
+          println(s"Written ${chunk.length} bytes")
           chunk
         }
       }
-      ZStream.fromInputStream(in).drainFork(writingStream).chunkN(chunkSize)
+      ZStream.fromInputStream(in).drainFork(writingStream)
     }
 
 }
