@@ -4,7 +4,7 @@ import zio.ZIO.fail
 import zio.test.Assertion._
 import zio.test.environment.TestEnvironment
 import zio.test.{DefaultRunnableSpec, ZSpec, _}
-import zio.{IO, ZIO}
+import zio.{Cause, IO, ZIO}
 import zio.test.TestAspect._
 
 object AccumulationSpec extends DefaultRunnableSpec {
@@ -22,6 +22,11 @@ object AccumulationSpec extends DefaultRunnableSpec {
     testM("from ZIOs") {
       val result: ZIO[Any, Int, (Nothing, Nothing)] = failure1.validate(failure2)
       assertM(result.either)(equalTo(Left(1)))
+    },
+    testM("combines both cause") {
+      assertM(failure1.validate(failure2).sandbox.either)(
+        isLeft(equalTo(Cause.Then(Cause.Fail(1), Cause.Fail(2))))
+      )
     }
   )
 
