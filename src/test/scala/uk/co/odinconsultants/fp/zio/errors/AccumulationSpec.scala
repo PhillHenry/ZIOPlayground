@@ -18,11 +18,30 @@ object AccumulationSpec extends DefaultRunnableSpec {
   testM("from ZIOs") {
       val result: ZIO[Any, Int, List[Nothing]] = ZIO.collectAllPar(failures)
       assertM(result.either)(equalTo(Left(1)))
-    } @@ ignore,
+    } @@ ignore /* as it's non-deterministic */
+    ,
     testM("from ZIOs") {
+      val result: IO[Int, (Nothing, Nothing)] = failure1.validate(failure2)
+      assertM(result.run)(
+        fails(
+          equalTo(1)
+        )
+      )
+    }
+    ,
+    testM("from ZIOs vai Either") {
       val result: ZIO[Any, Int, (Nothing, Nothing)] = failure1.validate(failure2)
-      assertM(result.either)(equalTo(Left(1)))
-    },
+      assertM(result.either)(
+        isLeft(equalTo(1))
+      )
+    }
+    ,
+    testM("combines both cause (taken from ZIO codebase)") {
+      assertM(failure1.validate(failure2).sandbox.either)(
+        isLeft(equalTo(Cause.Then(Cause.Fail(1), Cause.Fail(2))))
+      )
+    }
+    ,
     testM("combines both cause") {
       assertM(failure1.validate(failure2).sandbox.either)(
         isLeft(equalTo(Cause.Then(Cause.Fail(1), Cause.Fail(2))))
