@@ -1,5 +1,6 @@
 package uk.co.odinconsultants.fp.zio.streams
 
+import zio.Chunk
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.duration._
@@ -19,7 +20,7 @@ object LargePipeMainSpec extends DefaultRunnableSpec {
   val original      = ("0123456789" * n) + "remainder"
   val originalBytes = original.map(_.toByte).toList
 
-  def toString(xs: List[Byte]): String = new String(xs.toArray)
+  def toString(xs: Chunk[Byte]): String = new String(xs.toArray)
 
   val LargeChunkSize: Int = original.length / 2
 

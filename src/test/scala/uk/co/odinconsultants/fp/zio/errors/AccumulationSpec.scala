@@ -1,6 +1,5 @@
 package uk.co.odinconsultants.fp.zio.errors
 
-import zio.ZIO.fail
 import zio.test.Assertion._
 import zio.test.environment.TestEnvironment
 import zio.test.{DefaultRunnableSpec, ZSpec, _}
@@ -9,8 +8,8 @@ import zio.test.TestAspect._
 
 object AccumulationSpec extends DefaultRunnableSpec {
 
-  val failure1: IO[Int, Nothing] = fail(1)
-  val failure2: IO[Int, Nothing] = fail(2)
+  val failure1: IO[Int, Nothing] = ZIO.fail(1)
+  val failure2: IO[Int, Nothing] = ZIO.fail(2)
 
   val failures  = List(failure1, failure2)
 
@@ -21,6 +20,10 @@ object AccumulationSpec extends DefaultRunnableSpec {
     } @@ ignore /* as it's non-deterministic */
     ,
     testM("from ZIOs") {
+      assertM(failure1)(equalTo(1))
+    } @@ ignore // A checked error was not handled. 1
+    ,
+    testM("from validation of ZIOs") {
       val result: IO[Int, (Nothing, Nothing)] = failure1.validate(failure2)
       assertM(result.run)(
         fails(

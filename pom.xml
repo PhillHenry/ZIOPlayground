@@ -20,7 +20,7 @@
     <encoding>UTF-8</encoding>
     <scala.version>2.13.2</scala.version>
     <scala.compat.version>2.13</scala.compat.version>
-    <zio.version>1.0.0-RC20</zio.version>
+    <zio.version>1.0.0-RC21-2</zio.version>
   </properties>
 
   <dependencies>
