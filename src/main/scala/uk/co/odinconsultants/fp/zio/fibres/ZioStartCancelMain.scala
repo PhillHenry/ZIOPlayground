@@ -5,7 +5,7 @@ import zio.{URIO, ZEnv, _}
 
 object ZioStartCancelMain extends zio.App {
 
-  def sleeping = {
+  def sleeping: Unit = {
     println("About to sleep...")
     Thread.sleep(1000L)
     println("Finished")
@@ -16,8 +16,12 @@ object ZioStartCancelMain extends zio.App {
   }
 
   def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    val effect = effectBlockingCancelable(sleeping)(cancel)
-    effect.catchAll(e => URIO(e.printStackTrace())).map(_ => ExitCode.success)
+    val effect = for {
+      x <- effectBlockingCancelable(sleeping)(cancel).fork
+      _ <- x.interrupt
+    } yield ()
+
+    effect.map(_ => ExitCode.success)
   }
 
 }
