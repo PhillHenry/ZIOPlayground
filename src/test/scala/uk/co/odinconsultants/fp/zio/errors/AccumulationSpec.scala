@@ -11,11 +11,11 @@ object AccumulationSpec extends DefaultRunnableSpec {
   val failure1: IO[Int, Nothing] = ZIO.fail(1)
   val failure2: IO[Int, Nothing] = ZIO.fail(2)
 
-  val failures  = List(failure1, failure2)
+  val failures: Seq[ZIO[Any, Int, Any]] = List(failure1, failure2)
 
   override def spec: ZSpec[TestEnvironment, Any] = suite("Errors should be accumulated")(
   testM("from ZIOs") {
-      val result: ZIO[Any, Int, List[Nothing]] = ZIO.collectAllPar(failures)
+      val result = ZIO.collectAllPar(failures)
       assertM(result.either)(equalTo(Left(1)))
     } @@ ignore /* as it's non-deterministic */
     ,

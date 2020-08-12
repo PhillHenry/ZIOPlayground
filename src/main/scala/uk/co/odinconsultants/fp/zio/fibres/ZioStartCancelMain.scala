@@ -1,8 +1,7 @@
 package uk.co.odinconsultants.fp.zio.fibres
 
-import zio.blocking._
 import zio.{URIO, ZEnv, _}
-import zio.duration._
+
 import scala.language.postfixOps
 
 object ZioStartCancelMain extends zio.App {
@@ -18,9 +17,9 @@ object ZioStartCancelMain extends zio.App {
   }
 
   def run(args: List[String]): URIO[ZEnv, ExitCode] = {
+    val zio = ZIO(sleeping).onInterrupt(cancel)
     val effect = for {
-      x <- ZIO(sleeping).onInterrupt(cancel).fork.onInterrupt(cancel)
-      _ <- ZIO.sleep(1 second)
+      x <- (zio >>> zio >>> zio).fork
       _ <- x.interrupt
     } yield ()
 
