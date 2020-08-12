@@ -12,7 +12,7 @@ import zio.test.{DefaultRunnableSpec, ZSpec, _}
 
 import scala.language.postfixOps
 
-object LargePipeMainSpec extends DefaultRunnableSpec {
+object LargePipeMainTest extends DefaultRunnableSpec {
 
   import LargePipeMain._
 

@@ -6,7 +6,7 @@ import zio.test.{DefaultRunnableSpec, ZSpec, _}
 import zio.{Cause, IO, ZIO}
 import zio.test.TestAspect._
 
-object AccumulationSpec extends DefaultRunnableSpec {
+object AccumulationTest extends DefaultRunnableSpec {
 
   val failure1: IO[Int, Nothing] = ZIO.fail(1)
   val failure2: IO[Int, Nothing] = ZIO.fail(2)
