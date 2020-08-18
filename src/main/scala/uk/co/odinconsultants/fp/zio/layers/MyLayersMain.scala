@@ -3,7 +3,7 @@ package uk.co.odinconsultants.fp.zio.layers
 import uk.co.odinconsultants.fp.zio.layers.MyLayers.{KeyVault, KeyVaultLayer}
 import uk.co.odinconsultants.fp.zio.layers.MyLayers.KeyVault.Credential
 import zio.blocking.Blocking
-import zio.{FiberFailure, Has, Runtime, ULayer, ZEnv, ZIO, ZLayer}
+import zio.{FiberFailure, Has, RIO, Runtime, ULayer, ZEnv, ZIO, ZLayer}
 
 object MyLayersMain {
 
@@ -14,13 +14,15 @@ object MyLayersMain {
   })
 
   def main(args: Array[String]): Unit = {
-    val zioGetKeyPhrase: ZIO[KeyVaultLayer with Blocking, Throwable, (String, String)] = for {
+    val zioGetKeyPhrase: RIO[KeyVaultLayer with Blocking, (String, String)] = for {
       credential <- Actions.blockingZIO
       keyPhrase  <- MyLayers.KeyVault.getKeyVault(credential)
     } yield keyPhrase
 
-    val layers: ZLayer[Any, Nothing, KeyVaultLayer with Blocking] = kvService ++ blockingLayer
-    val zio = zioGetKeyPhrase.provideLayer(layers)
+    val layers: ULayer[KeyVaultLayer with Blocking] = kvService ++ blockingLayer
+    val zio: ZIO[Any, Throwable, (String, String)] = zioGetKeyPhrase.provideLayer(layers)
+
+    val partialZio: RIO[Blocking, (String, String)] = zioGetKeyPhrase.provideSomeLayer[Blocking](kvService)
 
     Runtime.default.unsafeRun(zio)
   }

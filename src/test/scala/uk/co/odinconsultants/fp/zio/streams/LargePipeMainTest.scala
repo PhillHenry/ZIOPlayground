@@ -1,5 +1,6 @@
 package uk.co.odinconsultants.fp.zio.streams
 
+import org.junit.runner.RunWith
 import zio.Chunk
 import zio.blocking.Blocking
 import zio.clock.Clock
@@ -8,10 +9,12 @@ import zio.stream.ZStream
 import zio.test.Assertion._
 import zio.test.TestAspect._
 import zio.test.environment.TestEnvironment
+import zio.test.junit.ZTestJUnitRunner
 import zio.test.{DefaultRunnableSpec, ZSpec, _}
 
 import scala.language.postfixOps
 
+@RunWith(classOf[ZTestJUnitRunner])
 object LargePipeMainTest extends DefaultRunnableSpec {
 
   import LargePipeMain._

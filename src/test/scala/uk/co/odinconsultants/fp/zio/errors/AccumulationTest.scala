@@ -1,11 +1,14 @@
 package uk.co.odinconsultants.fp.zio.errors
 
+import org.junit.runner.RunWith
 import zio.test.Assertion._
 import zio.test.environment.TestEnvironment
 import zio.test.{DefaultRunnableSpec, ZSpec, _}
 import zio.{Cause, IO, ZIO}
 import zio.test.TestAspect._
+import zio.test.junit.ZTestJUnitRunner
 
+@RunWith(classOf[ZTestJUnitRunner])
 object AccumulationTest extends DefaultRunnableSpec {
 
   val failure1: IO[Int, Nothing] = ZIO.fail(1)
