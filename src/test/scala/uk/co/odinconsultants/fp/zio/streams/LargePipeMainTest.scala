@@ -15,7 +15,7 @@ import zio.test.{DefaultRunnableSpec, ZSpec, _}
 import scala.language.postfixOps
 
 @RunWith(classOf[ZTestJUnitRunner])
-object LargePipeMainTest extends DefaultRunnableSpec {
+class LargePipeMainTest extends DefaultRunnableSpec {
 
   import LargePipeMain._
 

@@ -9,7 +9,7 @@ import zio.test.TestAspect._
 import zio.test.junit.ZTestJUnitRunner
 
 @RunWith(classOf[ZTestJUnitRunner])
-object AccumulationTest extends DefaultRunnableSpec {
+class AccumulationTest extends DefaultRunnableSpec {
 
   val failure1: IO[Int, Nothing] = ZIO.fail(1)
   val failure2: IO[Int, Nothing] = ZIO.fail(2)
