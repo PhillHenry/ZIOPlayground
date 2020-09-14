@@ -1,7 +1,7 @@
 package uk.co.odinconsultants.fp.zio.layers
-import uk.co.odinconsultants.fp.zio.layers.FromManaged.ServiceHello.ProdServiceHello
-import uk.co.odinconsultants.fp.zio.layers.FromManaged.ServiceWorld.ProdServiceWorld
-import zio.{ExitCode, Has, IO, UIO, ULayer, URIO, ZIO, ZLayer}
+import uk.co.odinconsultants.fp.zio.layers.FromManaged.ServiceHello.prodServiceHello
+import uk.co.odinconsultants.fp.zio.layers.FromManaged.ServiceWorld.prodServiceWorld
+import zio._
 
 object FromManaged extends zio.App {
 
@@ -15,11 +15,9 @@ object FromManaged extends zio.App {
 
     def callHello: URIO[ServiceHello, String] = ZIO.accessM(_.get.getHello)
 
-    object ProdServiceHello extends Service {
+    def prodServiceHello: Service = new Service {
       override def getHello: UIO[String] = UIO("hello, ")
     }
-
-    def prodServiceHello = ZIO(ProdServiceHello)
 
   }
 
@@ -31,14 +29,14 @@ object FromManaged extends zio.App {
       def getWorld: UIO[String]
     }
 
-    object ProdServiceWorld extends Service {
-      override def getWorld: UIO[String] = UIO("world")
-
-    }
 
     def callWorld: URIO[ServiceWorld, String] = ZIO.accessM(_.get.getWorld)
 
-    def prodServiceWorld = ZIO(ServiceWorld)
+    def prodServiceWorld: Service = new Service {
+      override def getWorld: UIO[String] = UIO("world")
+    }
+
+    def zioServiceWorld = UIO(prodServiceWorld)
 
   }
 
@@ -50,14 +48,12 @@ object FromManaged extends zio.App {
       world <- ServiceWorld.callWorld
     } yield hello + world
 
-    val prodWorld: ServiceWorld.Service = ProdServiceWorld
-    val prodHello: ServiceHello.Service = ProdServiceHello
-
-    val layers = ZLayer.succeed(prodWorld) ++ ZLayer.succeed(prodHello)
-    val toRun  = x.provideLayer(layers)
+    val worldLayer: ULayer[ServiceWorld] = ZLayer.fromEffect(ServiceWorld.zioServiceWorld)
+    val helloLayer: ULayer[ServiceHello] = ZLayer.succeed(prodServiceHello)
+    val layers: ZLayer[Any, Nothing, ServiceWorld with ServiceHello] = worldLayer ++ helloLayer
 
     for {
-      x <- toRun
+      x <- x.provideLayer(layers)
       _ <- print(x)
     } yield ExitCode.success
   }
