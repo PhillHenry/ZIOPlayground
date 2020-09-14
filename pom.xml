@@ -49,6 +49,11 @@
       <artifactId>zio-streams_${scala.compat.version}</artifactId>
       <version>${zio.version}</version>
     </dependency>
+    <dependency>
+      <groupId>dev.zio</groupId>
+      <artifactId>zio-kafka_${scala.compat.version}</artifactId>
+      <version>0.12.0</version>
+    </dependency>
   </dependencies>
 
   <build>
