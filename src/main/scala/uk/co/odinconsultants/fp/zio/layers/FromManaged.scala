@@ -13,10 +13,13 @@ object FromManaged extends zio.App {
       def getHello: UIO[String]
     }
 
-    def callHello: URIO[ServiceHello, String] = ZIO.accessM(_.get.getHello)
+    def callHello: URIO[ServiceHello, String] = print("callHello") *> ZIO.accessM(_.get.getHello)
 
     def prodServiceHello: Service = new Service {
-      override def getHello: UIO[String] = UIO("hello, ")
+      override def getHello: UIO[String] = UIO {
+        println("getHello")
+        "hello, "
+      }
     }
 
   }
@@ -30,10 +33,13 @@ object FromManaged extends zio.App {
     }
 
 
-    def callWorld: URIO[ServiceWorld, String] = ZIO.accessM(_.get.getWorld)
+    def callWorld: URIO[ServiceWorld, String] = print("callWorld") *> ZIO.accessM(_.get.getWorld)
 
     def prodServiceWorld: Service = new Service {
-      override def getWorld: UIO[String] = UIO("world")
+      override def getWorld: UIO[String] = UIO {
+        println("getWorld")
+        "world"
+      }
     }
 
     def zioServiceWorld = UIO(prodServiceWorld)
@@ -46,9 +52,13 @@ object FromManaged extends zio.App {
     val x: ZIO[ServiceHello with ServiceWorld, Nothing, String] = for {
       hello <- ServiceHello.callHello
       world <- ServiceWorld.callWorld
-    } yield hello + world
+    } yield {
+      println("yield")
+      hello + world
+    }
 
-    val worldLayer: ULayer[ServiceWorld] = ZLayer.fromEffect(ServiceWorld.zioServiceWorld)
+    val managed = ZManaged.make(ServiceWorld.zioServiceWorld)(x => print(s"released s${x.getClass}"))
+    val worldLayer: ULayer[ServiceWorld] = ZLayer.fromManaged(managed)
     val helloLayer: ULayer[ServiceHello] = ZLayer.succeed(prodServiceHello)
     val layers: ZLayer[Any, Nothing, ServiceWorld with ServiceHello] = worldLayer ++ helloLayer
 
