@@ -42,7 +42,7 @@ object FromManaged extends zio.App {
       }
     }
 
-    def zioServiceWorld = UIO(prodServiceWorld)
+    def zioServiceWorld: UIO[Service] = UIO(prodServiceWorld)
 
   }
 
@@ -67,7 +67,9 @@ object FromManaged extends zio.App {
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     for {
       x <- program.provideLayer(layers)
+      x2 <- program.provideLayer(layers) // this creates and closes a second ServiceWorld.Service but does not create a ServiceHello.Service
       _ <- print(s"Program finished. Final outcome = '$x'")
+      _ <- print(s"Program finished. Final outcome = '$x2'")
     } yield ExitCode.success
   }
 }
