@@ -15,6 +15,7 @@ object FromManaged extends zio.App {
     def callHello: URIO[ServiceHello, String] = print("callHello") *> ZIO.accessM(_.get.getHello)
 
     def prodServiceHello: Service = new Service {
+      println("ServiceHello.Service created")
       override def getHello: UIO[String] = UIO {
         println("getHello")
         "hello, "
@@ -31,10 +32,10 @@ object FromManaged extends zio.App {
       def getWorld: UIO[String]
     }
 
-
     def callWorld: URIO[ServiceWorld, String] = print("callWorld") *> ZIO.accessM(_.get.getWorld)
 
     def prodServiceWorld: Service = new Service {
+      println("ServiceWorld.Service created")
       override def getWorld: UIO[String] = UIO {
         println("getWorld")
         "world"
@@ -60,10 +61,13 @@ object FromManaged extends zio.App {
   val helloLayer: ULayer[ServiceHello] = ZLayer.succeed(prodServiceHello)
   val layers: ZLayer[Any, Nothing, ServiceWorld with ServiceHello] = worldLayer ++ helloLayer
 
+  /**
+   * Managed resource released before String concatenation (see 'yield') but after the 'program' monad has been evaluated.
+   */
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     for {
       x <- program.provideLayer(layers)
-      _ <- print(x)
+      _ <- print(s"Program finished. Final outcome = '$x'")
     } yield ExitCode.success
   }
 }
