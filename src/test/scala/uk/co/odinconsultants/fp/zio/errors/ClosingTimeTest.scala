@@ -8,7 +8,7 @@ import zio.test.{DefaultRunnableSpec, ZSpec, _}
 import zio.{Task, URIO, ZIO}
 
 @RunWith(classOf[ZTestJUnitRunner])
-class ExceptionsInCatchesTest extends DefaultRunnableSpec {
+class ClosingTimeTest extends DefaultRunnableSpec {
 
   val acquireMessage  = "acquire"
 
